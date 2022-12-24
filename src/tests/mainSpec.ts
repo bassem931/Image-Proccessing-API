@@ -10,9 +10,9 @@ describe('API testbench', () => {
   describe('Tests using supertest', () => {
     it('test API endpoint base url', () => {
       //start app on different ports
-      const app1 = app.listen(8000);
-      //test
-      supertest(app1)
+
+      //test main route
+      supertest(app)
         .get('/')
         .expect(200)
         .expect('Main route')
@@ -26,9 +26,8 @@ describe('API testbench', () => {
     //localhost:port/image
     it('test API endpoint with no query parameters', () => {
       //start app on different ports
-      const app1 = app.listen(4000);
       //test
-      supertest(app1)
+      supertest(app)
         .get('/image')
         .expect(400)
         .expect('no filename is given')
@@ -38,12 +37,11 @@ describe('API testbench', () => {
           }
         });
     });
+
     //localhost:3000/image?filename=foxdxfkl
     it('test API with filename', () => {
-      //start app on different ports
-      const app1 = app.listen(5000);
       //test
-      supertest(app1)
+      supertest(app)
         .get('/image?filename=foxdxfkl')
         .expect(404)
         .end(err => {
@@ -52,14 +50,52 @@ describe('API testbench', () => {
           }
         });
     });
-    it('test API with negative width', () => {
-      //start app on different ports
-      const app1 = app.listen(7000);
+
+    it('test API with string width', () => {
       //test
-      supertest(app1)
+      supertest(app)
+        .get('/image?filename=fjord&width=fkf')
+        .expect(400)
+        .expect('please enter a number for the width')
+        .end(err => {
+          if (err) {
+            fail(err);
+          }
+        });
+    });
+
+    it('test API with string height', () => {
+      //test
+      supertest(app)
+        .get('/image?filename=fjord&height=fkf')
+        .expect(400)
+        .expect('please enter a number for the height')
+        .end(err => {
+          if (err) {
+            fail(err);
+          }
+        });
+    });
+
+    it('test API with negative width', () => {
+      //test
+      supertest(app)
         .get('/image?filename=fjord&width=-200')
         .expect(400)
         .expect('please provide a positive width')
+        .end(err => {
+          if (err) {
+            fail(err);
+          }
+        });
+    });
+
+    it('test API with negative height', () => {
+      //test
+      supertest(app)
+        .get('/image?filename=fjord&height=-200')
+        .expect(400)
+        .expect('please provide a positive height')
         .end(err => {
           if (err) {
             fail(err);
