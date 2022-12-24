@@ -77,81 +77,86 @@ const getPicture = async (
 };
 
 //get function to retrun image to user
-imageRoute.get('/', imageExist, verifyDimensions, (req, res) => {
-  //define picture name from url and extension
-  const picName = req.query.filename as string;
-  const extension = res.locals.exten as string;
+imageRoute.get(
+  '/',
+  imageExist,
+  verifyDimensions,
+  (req: express.Request, res: express.Response): void => {
+    //define picture name from url and extension
+    const picName = req.query.filename as string;
+    const extension = res.locals.exten as string;
 
-  //define if height and weight is provided and valid
-  const isValidHeight = res.locals.validHeight as boolean;
-  const isValidWidth = res.locals.validWidth as boolean;
+    //define if height and weight is provided and valid
+    const isValidHeight = res.locals.validHeight as boolean;
+    const isValidWidth = res.locals.validWidth as boolean;
 
-  //define image location and directory of images
-  const filePath = path.join(__dirname, '../../images/', picName + extension);
+    //define image location and directory of images
+    const filePath = path.join(__dirname, '../../images/', picName + extension);
 
-  //get ispicresized for checking if resized image is already in the directory
-  //const isPicResized = res.locals.isPicResized as boolean;
+    //get ispicresized for checking if resized image is already in the directory
+    //const isPicResized = res.locals.isPicResized as boolean;
 
-  // get metadata first then call async functions to change photos
-  getMetaData(filePath).then(metaData => {
-    if (isValidHeight || isValidWidth) {
-      //get resized array
-      const resizedArray: string[] = res.locals.resizedArray;
+    // get metadata first then call async functions to change photos
+    getMetaData(filePath).then(metaData => {
+      if (isValidHeight || isValidWidth) {
+        //get resized array
+        const resizedArray: string[] = res.locals.resizedArray;
 
-      //both width and height are available
-      if (isValidHeight && isValidWidth) {
-        //define needed width and length
-        const width = parseInt(req.query.width as string);
-        const height = parseInt(req.query.height as string);
-        //if array is empty resize automatically
-        if (resizedArray.length !== 0) {
-          getPicture(filePath, picName, width, height, resizedArray, res);
-        } else {
-          //5osh sharp 3ala tool
-          resizeFunc(filePath, picName, width, height).then(sharpImg => {
-            res.sendFile(sharpImg);
-          });
-        }
-        //only width is defined
-      } else if (!isValidHeight && isValidWidth) {
-        //define needed width and length
-        const width = parseInt(req.query.width as string);
-        const height = parseInt(metaData?.height as unknown as string);
+        //both width and height are available
+        if (isValidHeight && isValidWidth) {
+          //define needed width and length
+          const width = parseInt(req.query.width as string);
+          const height = parseInt(req.query.height as string);
+          //if array is empty resize automatically
+          if (resizedArray.length !== 0) {
+            getPicture(filePath, picName, width, height, resizedArray, res);
+          } else {
+            //5osh sharp 3ala tool
+            resizeFunc(filePath, picName, width, height).then(sharpImg => {
+              res.sendFile(sharpImg);
+            });
+          }
+          //only width is defined
+        } else if (!isValidHeight && isValidWidth) {
+          //define needed width and length
+          const width = parseInt(req.query.width as string);
+          const height = parseInt(metaData?.height as unknown as string);
 
-        //if array is empty resize automatically
-        if (resizedArray.length !== 0) {
+          //if array is empty resize automatically
+          if (resizedArray.length !== 0) {
+            //call function to check if image is found or resize and return
+            getPicture(filePath, picName, width, height, resizedArray, res);
+          } else {
+            //5osh sharp 3ala tool
+            resizeFunc(filePath, picName, width, height).then(sharpImg => {
+              res.sendFile(sharpImg);
+            });
+          }
+          //only height is defined
+        } else if (isValidHeight && !isValidWidth) {
+          //define needed width and length
+          const width = parseInt(metaData?.height as unknown as string);
+          const height = parseInt(req.query.height as string);
+
           //call function to check if image is found or resize and return
-          getPicture(filePath, picName, width, height, resizedArray, res);
-        } else {
-          //5osh sharp 3ala tool
-          resizeFunc(filePath, picName, width, height).then(sharpImg => {
-            res.sendFile(sharpImg);
-          });
+          if (resizedArray.length !== 0) {
+            getPicture(filePath, picName, width, height, resizedArray, res);
+          } else {
+            //5osh sharp 3ala tool
+            resizeFunc(filePath, picName, width, height).then(sharpImg => {
+              res.sendFile(sharpImg);
+            });
+          }
         }
-        //only height is defined
-      } else if (isValidHeight && !isValidWidth) {
-        //define needed width and length
-        const width = parseInt(metaData?.height as unknown as string);
-        const height = parseInt(req.query.height as string);
-
-        //call function to check if image is found or resize and return
-        if (resizedArray.length !== 0) {
-          getPicture(filePath, picName, width, height, resizedArray, res);
-        } else {
-          //5osh sharp 3ala tool
-          resizeFunc(filePath, picName, width, height).then(sharpImg => {
-            res.sendFile(sharpImg);
-          });
-        }
+        //go to resize function
+      } else {
+        //if both not available return original
+        res.sendFile(filePath);
       }
-      //go to resize function
-    } else {
-      //if both not available return original
-      res.sendFile(filePath);
-    }
 
-    //can test more functionailty here
-  });
-});
+      //can test more functionailty here
+    });
+  },
+);
 
 export default imageRoute;

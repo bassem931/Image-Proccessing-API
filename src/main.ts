@@ -9,11 +9,11 @@ const port = 3000;
 //main route
 app.use('/image', imageRoute);
 
-app.get('/', (_req, res) => {
+app.get('/', (_req: express.Request, res: express.Response): void => {
   res.send('Main route');
 });
 
-app.listen(port, () => {
+app.listen(port, (): void => {
   console.log(`Server started at port ${port}`);
 });
 
