@@ -10,7 +10,7 @@ const port = 3000;
 app.use('/image', imageRoute);
 
 app.get('/', (_req: express.Request, res: express.Response): void => {
-  res.send('Main route');
+  res.status(200).send('Main route');
 });
 
 app.listen(port, (): void => {
