@@ -7,6 +7,10 @@ Image Processing API using sharp module for Udacity FWD program
 this API is an image processing API that can be used to resize any image in the directory. The height and width can be set as intended and the API will return the required photo
 the image has to be in the images project. to use first run the code as a localhost then access the /image route and set the query parameters as required
 
+### health check
+
+to check the health of the server and its availablity , access the main route of the API by searching for the _localhost:port_ (default in code is 3000) in the url bar of your browser. A message with _'main route'_ will be displayed with a status of 200(ok).
+
 ### setting query parameters
 
 to set query parameters set **filename** paramter to be the name of the picture in the directory
